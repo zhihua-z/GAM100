@@ -1,0 +1,47 @@
+class CameraBehaviour : ZilchComponent
+{
+    [Property]
+    var ScrollSpeed : Real;
+    var Player : Cog;
+    var ShakeX : Real = 0;
+    var ShakeY : Real = 0;
+    var Shake : Boolean = false;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Owner, Events.MouseScroll, this.OnMouseScroll);
+        this.Player = this.Space.FindObjectByName("Player");
+    }
+
+    function OnMouseScroll(event : ViewportMouseEvent)
+    {
+        var size : Real = this.Owner.Camera.Size;
+        
+        // If Camera size is between 20 and 40, allow scroll to adjust size
+        if (size >= 20 && size <= 40)
+        {
+            size -= event.Scroll.Y * this.ScrollSpeed * 0.1;
+            if (size < 20) size = 20;
+            if (size > 40) size = 40;
+        }
+        this.Owner.Camera.Size = size;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        // Shake Camera
+        if (this.Shake)
+        {
+            this.ShakeX = Random().Range(-5, 5);
+            this.ShakeY = Random().Range(-5, 5);
+        }
+        
+        // Linear interpolate the position of camera to the player position
+        var position = this.Owner.Transform.Translation;
+        position.X = Math.Lerp(position.X, this.Player.Transform.Translation.X + this.ShakeX, 0.1);
+        position.Y = Math.Lerp(position.Y, this.Player.Transform.Translation.Y + this.ShakeY, 0.1);
+        
+        this.Owner.Transform.Translation = position;
+    }
+}

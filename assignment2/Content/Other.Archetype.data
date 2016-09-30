@@ -1,0 +1,31 @@
+Cog = 
+{
+	LinkId = 
+	{
+		uint Id = 1,
+	},
+	Named = 
+	{
+		string Name = "Cube",
+	},
+	Archetyped = 
+	{
+		string Name = "573b11a276b414d9:Other",
+	},
+	Transform = 
+	{
+		Vec3 Translation = [1, 0, 0],
+		Vec3 Scale = [0.180164173, 1.00000012, 1],
+		Quat Rotation = [0, 0, 0.707106829, 0.707106769],
+	},
+	Model = 
+	{
+		bool Visible = true,
+		bool VisibilityCulling = true,
+		bool VisibilityEvents = true,
+		bool CastShadows = true,
+		string MaterialName = "4de020863e85bb61:DefaultMaterial",
+		string MeshName = "4de0354322b345ae:Cube",
+		Vec4 Color = [1, 1, 1, 1],
+	},
+},

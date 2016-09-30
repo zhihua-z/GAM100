@@ -1,0 +1,70 @@
+class BulletBehaviour : ZilchComponent
+{
+    // BULLET DAMAGE
+    [Property]
+    var Bullet1Damage : Integer = 1;
+    [Property]
+    var Bullet2Damage : Integer = 10;
+    
+    var Explosion : Archetype;
+    var RingEffect : Archetype;
+    var HugeExplosion : Archetype;
+    
+    var Direction : Real3;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
+        this.Explosion = Archetype.Find("Explosion");
+        this.RingEffect = Archetype.Find("Ring");
+        this.HugeExplosion = Archetype.Find("HugeExplosion");
+    }
+    
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        var object = event.OtherObject;
+        
+        if (object.ArchetypeName == "Enemy1"
+        || object.ArchetypeName == "Enemy2")
+        {
+            if (this.Owner.ArchetypeName == "Bullet1")
+            {
+                this.Space.CreateAtPosition(this.Explosion, this.Owner.Transform.Translation);
+            }
+            else if (this.Owner.ArchetypeName == "Bullet2")
+            {
+                this.Space.CreateAtPosition(this.RingEffect, this.Owner.Transform.Translation);
+            }
+            else if (this.Owner.ArchetypeName == "Bullet3")
+            {
+                this.Space.CreateAtPosition(this.HugeExplosion, this.Owner.Transform.Translation);
+            }
+            this.Owner.Destroy();
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        // PREPARE VARIABLES FOR LATER USE
+        var position = this.Owner.Transform.Translation;
+        var direction = Math.Normalize(this.Direction)/2;
+        direction.Z = 0;
+        
+        // Set direction of flying
+        position += direction;
+        position.Z = 1;
+        // If exit border then self destroy
+        if (position.X > 200 
+        || position.X < -200
+        || position.Y > 200
+        || position.Y < -200)
+        {
+            this.Owner.Destroy();
+        }
+        
+        // SET ALL VARIABLES BACK
+        this.Owner.Transform.SetEulerAnglesXYZ(0, 0, Math.ATan2(this.Direction.Y, this.Direction.X));
+        this.Owner.Transform.Translation = position;
+    }
+}

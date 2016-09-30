@@ -1,0 +1,29 @@
+class RingEffect : ZilchComponent
+{
+    var Timer : Real = 0;
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        var scale : Real3 = this.Owner.Transform.Scale;
+        var cscale = this.Owner.SphereCollider.Radius;
+        var color = this.Owner.Sprite.Color;
+        
+        scale += Real3(0.03, 0.03, 0);
+        cscale += 0.01;
+        color.W = (0.5 - this.Timer) * 1;
+        this.Timer += event.Dt;
+        
+        if (this.Timer > 0.5)
+        {
+            this.Owner.Destroy();
+        }
+        
+        this.Owner.Transform.Scale = scale;
+        this.Owner.Sprite.Color = color;
+        this.Owner.SphereCollider.Radius = cscale;
+    }
+}

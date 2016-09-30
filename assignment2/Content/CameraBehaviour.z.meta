@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "CameraBehaviour",
+		uint64 ResourceId = 57644c26a56d8f1c,
+	},
+},

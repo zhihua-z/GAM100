@@ -1,0 +1,20 @@
+ImageContent = 
+{
+	SpriteSourceBuilder = 
+	{
+		string Name = "blueprint",
+		uint64 ResourceId = 5764688fb00166a7,
+		uint64 AtlasId = 5274cf95e4a661fd,
+		uint FrameSizeX = 525,
+		uint FrameSizeY = 525,
+		uint FrameCount = 1,
+		float FrameDelay = 0.0833333358,
+		float OriginX = 262,
+		float OriginY = 262,
+		float PixelsPerUnit = 32,
+		bool Smoothing = true,
+		bool Looping = true,
+		Vec4 Slices = [0, 0, 0, 0],
+		SpriteFill Fill = Stretch,
+	},
+},

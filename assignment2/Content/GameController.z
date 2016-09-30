@@ -1,0 +1,102 @@
+class GameController : ZilchComponent
+{
+    //COGS
+    var ScoreText : Cog;
+    var ScoreLabel : Cog;
+    var BombText : Cog;
+    var BombLabel : Cog;
+    var EndText : Cog;
+    var RestartButton : Cog;
+    var RestartText : Cog;
+    
+    // ENEMIES
+    var Enemy1 : Archetype;
+    var Enemy2 : Archetype;
+    
+    // STATISTICS
+    var UIRatio : Real = 12;
+    var Score : Integer;
+    var Active : Boolean = true;
+    var Bomb : Integer;
+    
+    var Type1Count : Real = 0;
+    var Type2Count : Real = 0;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Enemy1 = Archetype.Find("Enemy1");
+        this.Enemy2 = Archetype.Find("Enemy2");
+        this.Score = 0;
+        this.Bomb = 0;
+        this.ScoreText = this.Space.FindObjectByName("ScoreText");
+        this.ScoreLabel = this.Space.FindObjectByName("ScoreLabel");
+        this.BombText = this.Space.FindObjectByName("BombNum");
+        this.BombLabel = this.Space.FindObjectByName("BombLabel");
+        this.EndText = this.Space.FindObjectByName("Ended");
+        this.RestartButton = this.Space.FindObjectByName("RestartBtn");
+        this.RestartText = this.Space.FindObjectByName("RestartText");
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if (this.Active)
+        {
+            var random : Real = Random().Range(0, 1);
+            var cameraSize : Real = this.Space.FindObjectByName("Camera").Camera.Size;
+            
+            // Spawn enemy type 1
+            // Max count of enemy type 1 is 200
+            // Random Spawn between -64 to 64 on both X Y axis
+            if ((random < 0.2) && (this.Type1Count <= 200))
+            {
+                var pos = Real3(Random().Range(-64, 64),Random().Range(-64, 64),1);
+                if (Math.Distance(pos, this.Space.FindObjectByName("Player").Transform.Translation) >= 10)
+                {
+                    this.Space.CreateAtPosition(this.Enemy1, pos);
+                    this.Type1Count += 1;
+                }
+            }
+            
+            // Spawn enemy type 2
+            // Max count of enemy type 1 is 80
+            // Random Spawn between -64 to 64 on both X Y axis
+            if ((random < 0.05) && (this.Type2Count <= 80))
+            {
+                var pos = Real3(Random().Range(-64, 64),Random().Range(-64, 64),1);
+                if (Math.Distance(pos, this.Space.FindObjectByName("Player").Transform.Translation) >= 10)
+                {
+                    this.Space.CreateAtPosition(this.Enemy2, pos);
+                    this.Type2Count += 1;
+                }
+            }
+            
+            // Update UI
+            var builder = new StringBuilder();
+            builder.Write(this.Score);
+            this.ScoreText.SpriteText.Text = builder.ToString();
+            builder = new StringBuilder();
+            builder.Write(this.Bomb);
+            this.BombText.SpriteText.Text = builder.ToString();
+            
+            // Update UI Size when scrolling mouse
+            this.ScoreText.Transform.Scale = Real3(cameraSize /this.UIRatio, cameraSize /this.UIRatio, 1);
+            this.ScoreText.Transform.Translation = Real3(6.3 + cameraSize/this.UIRatio*3,  5 + cameraSize/this.UIRatio*3, -40);
+            this.ScoreLabel.Transform.Scale = Real3(cameraSize /this.UIRatio, cameraSize /this.UIRatio, 1);
+            this.ScoreLabel.Transform.Translation = Real3(this.ScoreLabel.Transform.Translation.X, this.ScoreText.Transform.Translation.Y, -40);
+            
+            this.BombText.Transform.Scale = Real3(cameraSize /this.UIRatio, cameraSize /this.UIRatio, 1);
+            this.BombText.Transform.Translation = Real3(1.2 + cameraSize/this.UIRatio*1,  5 + cameraSize/this.UIRatio*3, -40);
+            this.BombLabel.Transform.Scale = Real3(cameraSize /this.UIRatio, cameraSize /this.UIRatio, 1);
+            this.BombLabel.Transform.Translation = Real3(-1.1, this.BombText.Transform.Translation.Y, -40);
+        }
+        else
+        {
+            this.EndText.SpriteText.Visible = true;
+            this.RestartButton.Reactive.Active = true;
+            this.RestartButton.Sprite.Visible = true;
+            this.RestartText.SpriteText.Visible = true;
+        }
+        
+    }
+}

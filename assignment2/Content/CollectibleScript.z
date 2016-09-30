@@ -1,0 +1,25 @@
+class CollectibleScript : ZilchComponent
+{
+    var Player : Cog;
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Player = this.Space.FindObjectByName("Player");
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        var playerPos = this.Player.Transform.Translation;
+        var pos = this.Owner.Transform.Translation;
+        var targetPos = playerPos - pos;
+        
+        // If distance between player and this.Owner is less than 10
+        // Chase player
+        if (Math.Distance(pos, playerPos) < 10)
+        {
+            pos = Math.Lerp(pos, playerPos, 0.01);
+        }
+        
+        this.Owner.Transform.Translation = pos;
+    }
+}

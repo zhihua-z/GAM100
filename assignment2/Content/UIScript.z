@@ -1,0 +1,15 @@
+class UIScript : ZilchComponent
+{
+    [Dependency]
+    var Reactive : Reactive = null;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Owner, Events.MouseDown, this.OnMouseDown);
+    }
+
+    function OnMouseDown(event : ViewportMouseEvent)
+    {
+        this.Space.ReloadLevel();
+    }
+}

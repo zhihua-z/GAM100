@@ -1,0 +1,124 @@
+class EnemyBehaviour : ZilchComponent
+{
+    
+    var Health : Real;
+    var Exploded : Boolean = false;
+    var ETimer : Real = 0;
+    var MTimer : Real = 0;
+    var Moving : Boolean = false;
+    var Active : Boolean = true;
+    var Bonus : Archetype;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Bonus = Archetype.Find("Bonus");
+        
+        // Initialize health of enemies
+        if (this.Owner.ArchetypeName == "Enemy1")
+        {
+            this.Health = 10;
+        }
+        else if (this.Owner.ArchetypeName == "Enemy2")
+        {
+            this.Health = 20;
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if (this.LevelSettings.GameController.Active)
+        {
+            // Color feedback upon taking damage from player
+            var color = this.Owner.Sprite.Color;
+            color.X = 1;
+            color.Y = (this.Health / 10) * 1;
+            color.Z = (this.Health / 10) * 1;
+            
+            // Minus health when rocket explode
+            if (this.Exploded)
+            {
+                this.ETimer += event.Dt;
+                if (this.ETimer > 1)
+                {
+                    this.Exploded = false;
+                }
+                this.Health -= 10;
+            }
+            
+            // ATTACK by moving towards player at random intervals
+            if (this.Moving == false)
+            {
+                var attack = Random().Range(0, 10);
+                if (attack <= 0.03)
+                {
+                    this.Moving = true;
+                }
+            }
+            else
+            {
+                var mypos = this.Owner.Transform.Translation;
+                var targetpos = this.Space.FindObjectByName("Player").Transform.Translation;
+                var vectorToTarget = targetpos - mypos;
+                targetpos = Math.Normalize(vectorToTarget);
+                mypos = Math.Lerp(mypos, mypos + vectorToTarget, 0.01 * (1 + this.LevelSettings.GameController.Score /500));
+                this.Owner.Transform.Translation = mypos;
+                
+                this.MTimer += event.Dt;
+                if (this.MTimer > 0.3)
+                {
+                    this.Moving = false;
+                    this.MTimer = 0;
+                }
+            }
+            
+            this.Owner.Sprite.Color = color;
+        }
+        
+    }
+
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        var object = event.OtherObject;
+        
+        if(object.ArchetypeName == "Bullet1")
+        {
+            this.Health -= object.BulletBehaviour.Bullet1Damage;
+        }
+        else if(object.ArchetypeName == "Bullet2")
+        {
+            this.Health -= object.BulletBehaviour.Bullet2Damage;
+        }
+        if(object.ArchetypeName == "Ring")
+        {
+            this.Health -= 3;
+        }
+        if (object.ArchetypeName == "HugeExplosion")
+        {
+            this.Exploded = true;
+        }
+        
+        if (this.Health <= 0)
+        {
+            if (this.Owner.ArchetypeName == "Enemy1")
+            {
+                this.LevelSettings.GameController.Type1Count -= 1;
+                this.LevelSettings.GameController.Score += 1;
+            }
+            else if (this.Owner.ArchetypeName == "Enemy2")
+            {
+                this.LevelSettings.GameController.Type2Count -= 1;
+                this.LevelSettings.GameController.Score += 10;
+            }
+            
+            // 10% Drop chance when killed
+            var rand = Random().Range(-1, 1);
+            if (rand > 0.8)
+            {
+                this.Space.CreateAtPosition(this.Bonus, this.Owner.Transform.Translation);
+            }
+            this.Owner.Destroy();
+        }
+    }
+}

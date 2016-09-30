@@ -1,0 +1,20 @@
+class ExplosionEffect : ZilchComponent
+{
+    var Timer : Real = 0;
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Space.FindObjectByName("Camera").CameraBehaviour.Shake = true;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        this.Timer += event.Dt;
+        if (this.Timer >= 1)
+        {
+            this.Space.FindObjectByName("Camera").CameraBehaviour.Shake = false;
+            this.Owner.SphereCollider.Radius == 0;
+            this.Owner.Destroy();
+        }
+    }
+}

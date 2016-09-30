@@ -1,0 +1,191 @@
+class PlayerBehaviour : ZilchComponent
+{
+    [Property] 
+    var PlayerSpeed : Real = 2;
+    
+    var PressDuration : Real = 0;
+    var Bullet1 : Archetype;
+    var Bullet2 : Archetype;
+    var Bullet3 : Archetype;
+    var MousePressed : Boolean = false;
+    var ShootingMode : Real = 0;
+    
+    var Timer : Real = 0;
+    var TTimer : Real = 0;
+    var Active : Boolean = true;
+    var ExplosionEffect : Archetype;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.LevelSettings, Events.MouseUpdate, this.OnMouseUpdate);
+        Zero.Connect(this.LevelSettings, Events.LeftMouseDown, this.OnLeftMouseDown);
+        Zero.Connect(this.LevelSettings, Events.LeftMouseUp, this.OnLeftMouseUp);
+        Zero.Connect(this.LevelSettings, Events.RightMouseDown, this.OnRightMouseDown);
+        Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
+        this.Bullet1 = Archetype.Find("Bullet1");
+        this.Bullet2 = Archetype.Find("Bullet2");
+        this.Bullet3 = Archetype.Find("Bullet3");
+        this.ExplosionEffect = Archetype.Find("HugeExplosion");
+    }
+
+    function OnRightMouseDown(event : ViewportMouseEvent)
+    {
+        // When click right mouse button, check if Cool Down of the skill is ready
+        // If it is ready, teleport player towards mouse direction by 10 units
+        if (this.TTimer == 0)
+        {
+            var pos = event.ToWorldZPlane(0);
+            var mypos = this.Owner.Transform.Translation;
+            var targetvector = Math.Normalize(pos - mypos)*10;
+            pos.Z = 1;
+            this.Owner.Transform.Translation = mypos + targetvector;
+            this.TTimer = 5;
+        }
+    }
+
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        var object = event.OtherObject;
+        
+        // End game when player touch enemies
+        if (object.ArchetypeName == "Enemy1"
+        || object.ArchetypeName == "Enemy2")
+        {
+            this.Active = false;
+            this.LevelSettings.GameController.Active = false;
+            this.Space.CreateAtPosition(this.ExplosionEffect, this.Owner.Transform.Translation);
+        }
+        else if (object.ArchetypeName == "Bonus")
+        {
+            this.LevelSettings.GameController.Bomb += 1;
+            object.Destroy();
+        }
+    }
+    
+    function OnLeftMouseDown(event : ViewportMouseEvent)
+    {
+        this.MousePressed = true;
+        
+        if (this.ShootingMode == 1)
+        {
+            var bullet : Cog = this.Space.CreateAtPosition(this.Bullet2, this.Owner.Transform.Translation);
+            bullet.BulletBehaviour.Direction = event.ToWorldZPlane(0) - this.Owner.Transform.Translation;
+        }
+        if (this.ShootingMode == 2)
+        {
+            if (this.LevelSettings.GameController.Bomb > 0)
+            {
+                var bullet : Cog = this.Space.CreateAtPosition(this.Bullet3, this.Owner.Transform.Translation);
+                bullet.BulletBehaviour.Direction = event.ToWorldZPlane(0) - this.Owner.Transform.Translation;
+                this.LevelSettings.GameController.Bomb -= 1;
+            }
+            
+        }
+    }
+
+    function OnLeftMouseUp(event : ViewportMouseEvent)
+    {
+        this.MousePressed = false;
+    }
+    
+    function OnMouseUpdate(event : ViewportMouseEvent)
+    {
+        if (this.Active)
+        {
+            // IMPLEMENT MOUSE UPDATE EVENT
+            // Calculate the vector from player to the mouse
+            // Use atan2 to calculate the angle between x axis and the vector
+            // Use SetEulerAnglesXYZ to set the rotation of player
+            var playerposition = this.Owner.Transform.Translation;
+            var mouseposition = event.ToWorldZPlane(0);
+            
+            var vectorToMouse = mouseposition - playerposition;
+            var angle = Math.ATan2(vectorToMouse.Y, vectorToMouse.X);
+            this.Owner.Transform.SetEulerAnglesXYZ(0, 0, angle);
+            
+            // IF MOUSE IS PRESSED DOWN
+            if (this.ShootingMode == 0)
+            {
+                if (this.MousePressed)
+                {
+                    // IMPLEMENT SHOOTING
+                    var bullet : Cog = this.Space.CreateAtPosition(this.Bullet1, this.Owner.Transform.Translation);
+                    bullet.BulletBehaviour.Direction = event.ToWorldZPlane(0) - this.Owner.Transform.Translation;
+                }
+            }
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+    if (this.Active)
+    {
+        // PREPARE VARIABLES FOR LATER USE
+        // position : Real3 as a local variable for Camera position
+        var position : Real3 = this.Owner.Transform.Translation;
+        
+        // IMPLEMENT KEYBOARD INPUT
+        // USE WSAD to move, the longer you press, the faster you will go
+        // Use PressDuration : Real to calculate the pressing time
+        // If let go of WSAD keys, it will decrease 25 times faster than it increse
+        if (Zero.Keyboard.KeyIsDown(Keys.W))
+        {
+            this.PressDuration += event.Dt/5;
+            position.Y += this.PlayerSpeed * event.Dt * (1 + this.PressDuration);
+            
+        }
+        if (Zero.Keyboard.KeyIsDown(Keys.S))
+        {
+            this.PressDuration += event.Dt/5;
+            position.Y -= this.PlayerSpeed * event.Dt * (1 + this.PressDuration);
+        }
+        if (Zero.Keyboard.KeyIsDown(Keys.D))
+        {
+            this.PressDuration += event.Dt/5;
+            position.X += this.PlayerSpeed * event.Dt * (1 + this.PressDuration);
+        }
+        if (Zero.Keyboard.KeyIsDown(Keys.A))
+        {
+            this.PressDuration += event.Dt/5;
+            position.X -= this.PlayerSpeed * event.Dt * (1 + this.PressDuration);
+        }
+        // Decrease player move speed bonus rapidly if player stop
+        if (Zero.Keyboard.KeyIsUp(Keys.W)
+        &&  Zero.Keyboard.KeyIsUp(Keys.S)
+        &&  Zero.Keyboard.KeyIsUp(Keys.A)
+        &&  Zero.Keyboard.KeyIsUp(Keys.D) 
+        && this.PressDuration > 0)
+        {
+            this.PressDuration -= 5*event.Dt;
+        }
+        
+        // Boundaries for player to move
+        if (position.X >  63) position.X =  63;
+        if (position.X < -63) position.X = -63;
+        if (position.Y >  63) position.Y =  63;
+        if (position.Y < -63) position.Y = -63; 
+        
+        // CHANGE SHOOTING MODE
+        if (Zero.Keyboard.KeyIsPressed(Keys.X))
+        {
+            this.ShootingMode += 1;
+            if (this.ShootingMode > 2)
+            {
+                this.ShootingMode = 0;
+            } 
+        }
+        
+        if (this.TTimer > 0)
+        {
+            this.TTimer -= event.Dt;
+            if (this.TTimer < 0)
+                this.TTimer = 0;
+        }
+        
+        
+        // SET ALL VARIABLES BACK
+        this.Owner.Transform.Translation = position;
+    }//active
+    }
+}
