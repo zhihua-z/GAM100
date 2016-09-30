@@ -1,0 +1,41 @@
+class PlayerController : ZilchComponent
+{
+    [Property]
+    var PlayerMoveSpeed : Real = 2;
+    
+    var Jumped : Boolean = false;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        var pos = this.Owner.Transform.Translation;
+        
+        if (Zero.Keyboard.KeyIsDown(Keys.Left))
+        {
+            pos.X += -this.PlayerMoveSpeed * event.Dt;
+        }
+        if (Zero.Keyboard.KeyIsDown(Keys.Right))
+        {
+            pos.X += this.PlayerMoveSpeed * event.Dt;
+        }
+        
+        if (Zero.Keyboard.KeyIsPressed(Keys.Space) && !this.Jumped)
+        {
+            this.Owner.RigidBody.Velocity = Real3(0, 1, 0);
+            this.Owner.RigidBody.ApplyForce(Real3(0, 5500, 0));
+            this.Jumped = true;
+        }
+        
+        if (this.Owner.RigidBody.Velocity == Real3(0, 0, 0))
+        {
+            this.Jumped = false;
+        }
+        
+        
+        this.Owner.Transform.Translation = pos;
+    }
+}

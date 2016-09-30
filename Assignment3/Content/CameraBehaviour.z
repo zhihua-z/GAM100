@@ -1,0 +1,16 @@
+class CameraBehaviour : ZilchComponent
+{
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        var pos = this.Owner.Transform.Translation;
+        
+        pos.X = this.Space.FindObjectByName("Player").Transform.Translation.X;
+        
+        this.Owner.Transform.Translation = pos;
+    }
+}
