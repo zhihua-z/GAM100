@@ -1,0 +1,29 @@
+class DestructibleBehaviour : ZilchComponent
+{
+    var BrickEffect : Archetype;
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
+        this.BrickEffect = Archetype.Find("BrickBreakEffect");
+    }
+
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        var obj = event.OtherObject;
+        
+        if (this.Owner.ArchetypeName == "Brick")
+        {
+            if (obj.Name == "Player")
+            {
+                if (Math.Abs(this.Owner.Transform.Translation.X - obj.Transform.Translation.X) < 0.5)
+                {
+                    if (this.Owner.Transform.Translation.Y - obj.Transform.Translation.Y > 0)
+                    {
+                        this.Space.CreateAtPosition(this.BrickEffect, this.Owner.Transform.Translation);
+                        this.Owner.Destroy();
+                    }
+                }
+            }
+        }
+    }
+}

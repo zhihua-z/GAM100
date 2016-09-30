@@ -4,10 +4,16 @@ class PlayerController : ZilchComponent
     var PlayerMoveSpeed : Real = 2;
     
     var Jumped : Boolean = false;
+    var FlipLeft : Boolean = false;
+    
+    var MStand : SpriteSource;
+    var MRun : SpriteSource;
     
     function Initialize(init : CogInitializer)
     {
         Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.MStand = SpriteSource.Find("maruko_stand");
+        this.MRun = SpriteSource.Find("maruko_run");
     }
 
     function OnLogicUpdate(event : UpdateEvent)
@@ -16,11 +22,35 @@ class PlayerController : ZilchComponent
         
         if (Zero.Keyboard.KeyIsDown(Keys.Left))
         {
+            if (this.Owner.Sprite.SpriteSource != this.MRun)
+            {
+                this.Owner.Sprite.SpriteSource = this.MRun;
+            }
             pos.X += -this.PlayerMoveSpeed * event.Dt;
+            if (!this.FlipLeft)
+            {
+                this.FlipLeft = true;
+                this.Owner.Sprite.FlipX = false;
+            }
         }
+        
         if (Zero.Keyboard.KeyIsDown(Keys.Right))
         {
+            if (this.Owner.Sprite.SpriteSource != this.MRun)
+            {
+                this.Owner.Sprite.SpriteSource = this.MRun;
+            }
             pos.X += this.PlayerMoveSpeed * event.Dt;
+            if (this.FlipLeft)
+            {
+                this.FlipLeft = false;
+                this.Owner.Sprite.FlipX = true;
+            }
+        }
+        
+        if (Zero.Keyboard.KeyIsUp(Keys.Left) && Zero.Keyboard.KeyIsUp(Keys.Right))
+        {
+            this.Owner.Sprite.SpriteSource = this.MStand;
         }
         
         if (Zero.Keyboard.KeyIsPressed(Keys.Space) && !this.Jumped)

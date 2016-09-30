@@ -1,0 +1,18 @@
+class GameController : ZilchComponent
+{
+    var Brick : Archetype;
+    
+    function Initialize(init : CogInitializer)
+    {
+        //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Brick = Archetype.Find("Brick");
+        for (var i = 0; i < 5; ++i)
+        {
+            this.Space.CreateAtPosition(this.Brick, Real3(-14.5+i, 4.5, 0));
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+    }
+}

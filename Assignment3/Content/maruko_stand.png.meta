@@ -2,15 +2,15 @@ ImageContent =
 {
 	SpriteSourceBuilder = 
 	{
-		string Name = "spritesheet_zhuan",
-		uint64 ResourceId = 572f99ec90878808,
+		string Name = "maruko_stand",
+		uint64 ResourceId = 572f809336745c3a,
 		uint64 AtlasId = 5274cf95e4a661fd,
-		uint FrameSizeX = 16,
-		uint FrameSizeY = 16,
+		uint FrameSizeX = 32,
+		uint FrameSizeY = 32,
 		uint FrameCount = 1,
 		float FrameDelay = 0.0833333358,
-		float OriginX = 8,
-		float OriginY = 8,
+		float OriginX = 16,
+		float OriginY = 16,
 		float PixelsPerUnit = 16,
 		bool Smoothing = false,
 		bool Looping = true,
