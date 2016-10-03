@@ -1,6 +1,7 @@
 class GameController : ZilchComponent
 {
     var Brick : Archetype;
+    var GameEnd : Boolean = false;
     
     function Initialize(init : CogInitializer)
     {

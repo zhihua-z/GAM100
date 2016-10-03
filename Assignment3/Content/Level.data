@@ -107,7 +107,7 @@ Level =
 		},
 		Transform = 
 		{
-			Vec3 Translation = [-59.6252327, 11.533433, 49.9999962],
+			Vec3 Translation = [-13.6828794, 5.1739254, 50],
 			Vec3 Scale = [1, 1, 1],
 			Quat Rotation = [-0, -1.09278471e-08, 0, 1],
 		},
@@ -119,7 +119,7 @@ Level =
 			float FieldOfView = 45,
 			float NearPlane = 0.5,
 			float FarPlane = 500,
-			float Size = 20.1896935,
+			float Size = 11.0803556,
 		},
 		EditorCameraController = 
 		{
@@ -127,7 +127,7 @@ Level =
 			float LookDistance = 50,
 			float VerticalAngle = 0,
 			float HorizontalAngle = 0,
-			Vec3 LookTarget = [-59.6252327, 11.533433, -2.60630145e-06],
+			Vec3 LookTarget = [-13.6828794, 5.1739254, -5.98097756e-07],
 			float MoveSensitivity = 1,
 		},
 		EditorRenderer = 
@@ -186,7 +186,7 @@ Level =
 		},
 		Transform = 
 		{
-			Vec3 Translation = [-18.046854, 2.37235928, 0],
+			Vec3 Translation = [-18.046854, 2.57612181, 0],
 			Vec3 Scale = [1, 1, 1],
 			Quat Rotation = [0, 0, 0, 1],
 		},
@@ -208,16 +208,6 @@ Level =
 			float AnimationSpeed = 1,
 			uint StartFrame = 0,
 		},
-		BoxCollider = 
-		{
-			bool Ghost = false,
-			bool SendsMessages = true,
-			bool Seamless = true,
-			string MaterialName = "572f9349db070837:PlayerMat",
-			string SerializedGroupName = "4e740859314e5515:DefaultGroup",
-			Vec3 Offset = [0, 0, 0],
-			Vec3 Size = [0.75, 1, 0.5],
-		},
 		RigidBody = 
 		{
 			bool Static = false,
@@ -234,6 +224,16 @@ Level =
 		{
 			float PlayerMoveSpeed = 8,
 		},
+		BoxCollider = 
+		{
+			bool Ghost = false,
+			bool SendsMessages = true,
+			bool Seamless = true,
+			string MaterialName = "572f9349db070837:PlayerMat",
+			string SerializedGroupName = "4e740859314e5515:DefaultGroup",
+			Vec3 Offset = [0, 0, 0],
+			Vec3 Size = [0.5, 1, 0.5],
+		},
 		Hierarchy = 
 		{
 		},
@@ -247,6 +247,11 @@ Level =
 		Named = 
 		{
 			string Name = "TileMap",
+		},
+		EditorFlags = 
+		{
+			bool Locked = true,
+			bool Hidden = false,
 		},
 		Transform = 
 		{
@@ -271,6 +276,42 @@ Level =
 			string PaletteName = "572f832b46813cdc:MabioTilePalette",
 			float UnitsPerTile = 1,
 			float MeshThickness = 1.20000005,
+		},
+	},
+	ArchetypeInstance = 
+	{
+		string Name = "57303fd2e6a690f4:Enemy",
+		LinkId = 
+		{
+			uint Id = 6,
+		},
+		Transform = 
+		{
+			Vec3 Translation = [-19.9906559, 1.64998364, 0],
+			Vec3 Scale = [1, 1, 1],
+			Quat Rotation = [0, 0, 0, 1],
+		},
+		Named = 
+		{
+			string Name = "enemy_run",
+		},
+	},
+	ArchetypeInstance = 
+	{
+		string Name = "572fbc31bf8bacff:BrickBreakEffect",
+		LinkId = 
+		{
+			uint Id = 7,
+		},
+		Transform = 
+		{
+			Vec3 Translation = [-8.79197598, 11.291975, 0],
+			Vec3 Scale = [1, 1, 1],
+			Quat Rotation = [0, 0, 0, 1],
+		},
+		Named = 
+		{
+			string Name = "BrickEffect",
 		},
 	},
 },

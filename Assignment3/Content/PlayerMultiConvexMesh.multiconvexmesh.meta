@@ -1,0 +1,12 @@
+BinaryContent = 
+{
+	BinaryBuilder = 
+	{
+		string Name = "PlayerMultiConvexMesh",
+		uint64 ResourceId = 573000e47bbf989a,
+		string LoaderType = "MultiConvexMesh",
+		uint Version = 0,
+		string FilterTag = "",
+		string ResourceOwner = "",
+	},
+},

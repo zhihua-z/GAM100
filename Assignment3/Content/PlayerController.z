@@ -5,6 +5,11 @@ class PlayerController : ZilchComponent
     
     var Jumped : Boolean = false;
     var FlipLeft : Boolean = false;
+    var PlayerJumpForce : Real = 3500;
+    var Health : Integer = 2;
+    var MinusHealth : Boolean = false;
+    var HealthTimer : Real = 0.5;
+    var PlayerColor : Real4;
     
     var MStand : SpriteSource;
     var MRun : SpriteSource;
@@ -12,8 +17,48 @@ class PlayerController : ZilchComponent
     function Initialize(init : CogInitializer)
     {
         Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
         this.MStand = SpriteSource.Find("maruko_stand");
         this.MRun = SpriteSource.Find("maruko_run");
+        this.PlayerColor = this.Owner.Sprite.Color;
+    }
+
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        var obj = event.OtherObject;
+        
+        if (obj.ArchetypeName == "Enemy")
+        {
+            if (Math.Abs(this.Owner.Transform.Translation.X - obj.Transform.Translation.X) < 0.7)
+            {
+                if (this.Owner.Transform.Translation.Y - obj.Transform.Translation.Y > 0.2)  
+                {
+                    Console.WriteLine("Stepped On");
+                    obj.EnemyBehaviour.SteppedOn = true;
+                }               
+            }
+            else if(obj.EnemyBehaviour.SteppedOn == false)
+            {
+                this.Health -= 1;
+                this.MinusHealth = true;
+                
+                var force = Real3(0,500,0);
+                if (this.FlipLeft)
+                {
+                    force.X = 1000;
+                }
+                else
+                {
+                    force.X = -1000;
+                }
+                this.Owner.RigidBody.ApplyForce(force);
+                
+                if (this.Health == 0)
+                {
+                    this.LevelSettings.GameController.GameEnd = true;
+                }
+            }
+        }
     }
 
     function OnLogicUpdate(event : UpdateEvent)
@@ -56,13 +101,27 @@ class PlayerController : ZilchComponent
         if (Zero.Keyboard.KeyIsPressed(Keys.Space) && !this.Jumped)
         {
             this.Owner.RigidBody.Velocity = Real3(0, 1, 0);
-            this.Owner.RigidBody.ApplyForce(Real3(0, 5500, 0));
+            this.Owner.RigidBody.ApplyForce(Real3(0, this.PlayerJumpForce, 0));
             this.Jumped = true;
         }
         
         if (this.Owner.RigidBody.Velocity == Real3(0, 0, 0))
         {
             this.Jumped = false;
+        }
+        
+        if (this.MinusHealth)
+        {
+            this.HealthTimer -= event.Dt;
+            
+            this.Owner.Sprite.Color = this.PlayerColor + Real4(0, 0.5, 0.5, 0);
+            
+            if (this.HealthTimer < 0)
+            {
+                this.MinusHealth = false;
+                this.HealthTimer = 0.3;
+                this.Owner.Sprite.Color = this.PlayerColor;
+            }
         }
         
         
