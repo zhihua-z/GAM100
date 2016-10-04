@@ -3,15 +3,18 @@ class EnemyBehaviour : ZilchComponent
     var SteppedOn : Boolean = false;
     var DieSprite : SpriteSource;
     var CorpseTime : Real = 1;
+    var Add100 : Archetype;
+    var Add100Created : Boolean = false;
+    
     function Initialize(init : CogInitializer)
     {
         Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Add100 = Archetype.Find("Add100");
+        
         if (this.Owner.ArchetypeName == "Enemy")
         {
             this.DieSprite = SpriteSource.Find("enemy_die");
-            Console.WriteLine("me");
         }
-            
     }
 
     function OnLogicUpdate(event : UpdateEvent)
@@ -24,11 +27,24 @@ class EnemyBehaviour : ZilchComponent
             this.Owner.BoxCollider.Size = Real3(this.Owner.BoxCollider.Size.X, 0.01, this.Owner.BoxCollider.Size.Z);
             this.Owner.RigidBody.DynamicState = RigidBodyDynamicState.Static;
             
+            if (!this.Add100Created)
+            {
+                var obj = this.Space.CreateAtPosition(this.Add100, this.Owner.Transform.Translation);
+                obj.SpriteText.Visible = true;
+                this.Add100Created = true;
+                this.LevelSettings.GameController.Score += 100;
+            }
+            
             this.CorpseTime -= event.Dt;
             if (this.CorpseTime < 0)
             {
                 this.Owner.Destroy();
             }
+            
+        }
+        else
+        {
+            this.Owner.Transform.Translation += Real3(-event.Dt , 0, 0);
         }
     }
 }

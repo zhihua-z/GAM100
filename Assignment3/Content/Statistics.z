@@ -1,0 +1,19 @@
+class Statistics : ZilchComponent
+{
+    var HighScore : Integer = 0;
+    var CurrentScore : Integer = 0;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if (this.HighScore < this.CurrentScore)
+        {
+            this.HighScore = this.CurrentScore;
+        }
+        Console.WriteLine(this.HighScore);
+    }
+}

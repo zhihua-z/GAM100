@@ -6,13 +6,13 @@ class PlayerController : ZilchComponent
     var Jumped : Boolean = false;
     var FlipLeft : Boolean = false;
     var PlayerJumpForce : Real = 3500;
-    var Health : Integer = 2;
     var MinusHealth : Boolean = false;
     var HealthTimer : Real = 0.5;
     var PlayerColor : Real4;
     
     var MStand : SpriteSource;
     var MRun : SpriteSource;
+    var MJump : SpriteSource;
     
     function Initialize(init : CogInitializer)
     {
@@ -20,6 +20,7 @@ class PlayerController : ZilchComponent
         Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
         this.MStand = SpriteSource.Find("maruko_stand");
         this.MRun = SpriteSource.Find("maruko_run");
+        this.MJump = SpriteSource.Find("maruko_jumped");
         this.PlayerColor = this.Owner.Sprite.Color;
     }
 
@@ -39,7 +40,7 @@ class PlayerController : ZilchComponent
             }
             else if(obj.EnemyBehaviour.SteppedOn == false)
             {
-                this.Health -= 1;
+                this.LevelSettings.GameController.Health -= 1;
                 this.MinusHealth = true;
                 
                 var force = Real3(0,500,0);
@@ -52,12 +53,16 @@ class PlayerController : ZilchComponent
                     force.X = -1000;
                 }
                 this.Owner.RigidBody.ApplyForce(force);
-                
-                if (this.Health == 0)
-                {
-                    this.LevelSettings.GameController.GameEnd = true;
-                }
             }
+        }
+        else if (obj.Name == "Hazard")
+        {
+            this.LevelSettings.GameController.Health = 0;
+        }
+        else if (obj.ArchetypeName == "Potion")
+        {
+            this.LevelSettings.GameController.Health += 1;
+            obj.Destroy();
         }
     }
 
@@ -67,7 +72,7 @@ class PlayerController : ZilchComponent
         
         if (Zero.Keyboard.KeyIsDown(Keys.Left))
         {
-            if (this.Owner.Sprite.SpriteSource != this.MRun)
+            if (this.Owner.Sprite.SpriteSource != this.MRun && this.Owner.Sprite.SpriteSource != this.MJump)
             {
                 this.Owner.Sprite.SpriteSource = this.MRun;
             }
@@ -81,7 +86,7 @@ class PlayerController : ZilchComponent
         
         if (Zero.Keyboard.KeyIsDown(Keys.Right))
         {
-            if (this.Owner.Sprite.SpriteSource != this.MRun)
+            if (this.Owner.Sprite.SpriteSource != this.MRun && this.Owner.Sprite.SpriteSource != this.MJump)
             {
                 this.Owner.Sprite.SpriteSource = this.MRun;
             }
@@ -93,7 +98,7 @@ class PlayerController : ZilchComponent
             }
         }
         
-        if (Zero.Keyboard.KeyIsUp(Keys.Left) && Zero.Keyboard.KeyIsUp(Keys.Right))
+        if (Zero.Keyboard.KeyIsUp(Keys.Left) && Zero.Keyboard.KeyIsUp(Keys.Right) && this.Owner.Sprite.SpriteSource != this.MJump)
         {
             this.Owner.Sprite.SpriteSource = this.MStand;
         }
@@ -103,10 +108,13 @@ class PlayerController : ZilchComponent
             this.Owner.RigidBody.Velocity = Real3(0, 1, 0);
             this.Owner.RigidBody.ApplyForce(Real3(0, this.PlayerJumpForce, 0));
             this.Jumped = true;
+            this.Owner.Sprite.SpriteSource = this.MJump;
         }
         
         if (this.Owner.RigidBody.Velocity == Real3(0, 0, 0))
         {
+            if (this.Owner.Sprite.SpriteSource == this.MJump)
+                this.Owner.Sprite.SpriteSource = this.MStand;
             this.Jumped = false;
         }
         

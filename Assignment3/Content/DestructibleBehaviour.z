@@ -1,10 +1,15 @@
 class DestructibleBehaviour : ZilchComponent
 {
     var BrickEffect : Archetype;
+    var Potion : Archetype;
+    
+    var PotionTimer : Real = 1;
+    
     function Initialize(init : CogInitializer)
     {
         Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
         this.BrickEffect = Archetype.Find("BrickBreakEffect");
+        this.Potion = Archetype.Find("Potion");
     }
 
     function OnCollisionStarted(event : CollisionEvent)
@@ -20,6 +25,11 @@ class DestructibleBehaviour : ZilchComponent
                     if (this.Owner.Transform.Translation.Y - obj.Transform.Translation.Y > 0)
                     {
                         this.Space.CreateAtPosition(this.BrickEffect, this.Owner.Transform.Translation);
+                        if (Random().Range(-1, 1) > 0.5)
+                        {
+                            this.Space.CreateAtPosition(this.Potion, this.Owner.Transform.Translation);
+                        }
+                        
                         this.Owner.Destroy();
                     }
                 }

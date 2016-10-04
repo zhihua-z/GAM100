@@ -1,0 +1,27 @@
+class Add100Script : ZilchComponent
+{
+    var Timer : Real = 0;
+    var Color : Real4 = Real4(0, 0, 0, 0);
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        this.Timer += event.Dt;
+        this.Color.W = event.Dt;
+        
+        if (this.Timer > 0.5)
+        {
+            this.Owner.Destroy();
+        }
+        else
+        {
+            var pos = this.Owner.Transform.Translation;
+            pos.Y += event.Dt;
+            this.Owner.SpriteText.Color = this.Owner.SpriteText.Color - this.Color;
+            this.Owner.Transform.Translation = pos;
+        }
+    }
+}

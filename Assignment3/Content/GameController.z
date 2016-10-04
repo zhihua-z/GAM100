@@ -3,17 +3,63 @@ class GameController : ZilchComponent
     var Brick : Archetype;
     var GameEnd : Boolean = false;
     
+    var Enemy1 : Archetype;
+    var Spawners : Array[Real3];
+    var SpawnTimer : Real = 0;
+    var Score : Integer = 0;
+    var Health : Integer = 3;
+    
+    var ScoreText : Cog;
+    var HealthText : Cog;
+    
     function Initialize(init : CogInitializer)
     {
-        //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
         this.Brick = Archetype.Find("Brick");
+        this.Enemy1 = Archetype.Find("Enemy");
+        this.ScoreText = this.Space.FindObjectByName("ScoreText");
+        this.HealthText = this.Space.FindObjectByName("HealthText");
+        this.Spawners = new Array[Real3]();
+        
         for (var i = 0; i < 5; ++i)
         {
             this.Space.CreateAtPosition(this.Brick, Real3(-14.5+i, 4.5, 0));
+        }
+        this.Space.CreateAtPosition(this.Enemy1, Real3(-7, 13, 0));
+        foreach (var j in this.Space.FindAllObjectsByName("Spawner"))
+        {
+            Console.WriteLine(j);
+            this.Spawners.Add(j.Transform.Translation);
         }
     }
 
     function OnLogicUpdate(event : UpdateEvent)
     {
+        this.SpawnTimer += event.Dt;
+        
+        if (this.SpawnTimer > 5)
+        {
+            foreach (var i in this.Spawners)
+            {
+                this.Space.CreateAtPosition(this.Enemy1, i);
+                Console.WriteLine(i);
+            }
+            
+            this.SpawnTimer = 0;
+        }
+        
+        var sb = new StringBuilder();
+        sb.Write(this.Score);
+        this.ScoreText.SpriteText.Text = sb.ToString();
+        
+        sb = new StringBuilder();
+        sb.Write(this.Health);
+        this.HealthText.SpriteText.Text = sb.ToString();
+        
+        if (this.Health <= 0)
+        {
+            this.Space.LoadLevel(Level.Find("GameEnd"));
+            this.Space.Statistics.CurrentScore = this.Score;
+        }
     }
 }

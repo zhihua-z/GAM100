@@ -1,0 +1,12 @@
+BinaryContent = 
+{
+	BinaryBuilder = 
+	{
+		string Name = "Win_TileMap00",
+		uint64 ResourceId = 5777363b11517749,
+		string LoaderType = "TileMapSource",
+		uint Version = 0,
+		string FilterTag = "",
+		string ResourceOwner = "577736ca14efd835:Win",
+	},
+},

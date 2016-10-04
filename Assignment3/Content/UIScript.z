@@ -1,0 +1,48 @@
+class UIScript : ZilchComponent
+{
+    [Dependency]
+    var Reactive : Reactive = null;
+    
+    var Color : Real4;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Owner, Events.MouseDown, this.OnMouseDown);
+        Zero.Connect(this.Owner, Events.MouseEnter, this.OnMouseEnter);
+        Zero.Connect(this.Owner, Events.MouseExit, this.OnMouseExit);
+        
+        this.Color = this.Owner.SpriteText.Color;
+    }
+
+    function OnMouseExit(event : ViewportMouseEvent)
+    {
+        this.Owner.SpriteText.Color = this.Color;
+    }
+
+    function OnMouseEnter(event : ViewportMouseEvent)
+    {
+        this.Owner.SpriteText.Color = Real4(1, 0.7, 0, 1);
+    }
+
+    function OnMouseDown(event : ViewportMouseEvent)
+    {
+        if (this.Owner.Name == "Start")
+        {
+            this.Space.LoadLevel(Level.Find("Level"));
+        }
+        else if (this.Owner.Name == "Restart")
+        {
+            this.Space.LoadLevel(Level.Find("MainMenu"));
+        }
+        else if (this.Owner.Name == "Again")
+        {
+            this.Space.LoadLevel(Level.Find("MainMenu"));
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        
+    }
+}

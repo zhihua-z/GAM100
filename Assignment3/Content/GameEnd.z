@@ -1,0 +1,27 @@
+class GameEnd : ZilchComponent
+{
+    var Score : Integer;
+    var HighScore : Integer;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        this.Score = this.Space.Statistics.CurrentScore;
+        this.HighScore = this.Space.Statistics.HighScore;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if (this.HighScore < this.Score)
+        {
+            this.HighScore = this.Score;
+        }
+        var sb = new StringBuilder();
+        sb.Write(this.Score);
+        this.Space.FindObjectByName("ScoreText").SpriteText.Text = sb.ToString();
+        
+        sb = new StringBuilder();
+        sb.Write(this.HighScore);
+        this.Space.FindObjectByName("HighScoreText").SpriteText.Text = sb.ToString();
+    }
+}
